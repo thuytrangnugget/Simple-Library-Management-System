@@ -21,6 +21,18 @@ public class Manager {
     public static MyList<Book> bookList = new MyList<Book>();
     public static MyList<Reader> readerList = new MyList<Reader>();
     public static MyList<Lending> lendingList = new MyList<Lending>();
+
+    static void inputLending() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    static void displayLending() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    static void sortLending() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     public Manager() {
     }
     static void menu() {
@@ -45,9 +57,10 @@ public class Manager {
         System.out.println("15. Search by rcode");
         System.out.println("16. Delete by rcode");
         System.out.println("--------------------------");
-        System.out.println("Input data");
-        System.out.println("Display data");
-        System.out.println("Sort by bcode + rcode");
+        System.out.println("17. Input data");
+        System.out.println("18. Display data");
+        System.out.println("19. Sort by bcode + rcode");
+        System.out.println("20. Exit");
     }
     
     static void writeBookFile(String filename, ArrayList<Book> b) {
@@ -90,28 +103,32 @@ public class Manager {
     }
     
     static void loadDataFromFile(String filename) throws Exception {
-        String currentDir = System.getProperty("user.dir");
-        currentDir = currentDir + filename;
-        FileReader fr = new FileReader(currentDir);
-        BufferedReader br = new BufferedReader(fr);
-        String[] arr; 
-        String s, bcode, title;
-        int quantity;
-        double price;
-        while (true) {
-            s = br.readLine();
-            if (s == null || s.trim().length() < 3) {
-                break;
+        try {
+            String currentDir = System.getProperty("user.dir");
+            currentDir = currentDir + filename;
+            FileReader fr = new FileReader(currentDir);
+            BufferedReader br = new BufferedReader(fr);
+            String[] arr;
+            String s, bcode, title;
+            int quantity;
+            double price;
+            while (true) {
+                s = br.readLine();
+                if (s == null || s.trim().length() < 3) {
+                    break;
+                }
+                arr = s.split("[|]");
+                bcode = arr[0].trim();
+                title = arr[1].trim();
+                quantity = Integer.parseInt(arr[2].trim());
+                price = Double.parseDouble(arr[3].trim());
+                bookList.addLast(new Book(bcode, title, price, quantity));
             }
-            arr = s.split("[|]");
-            bcode = arr[0].trim();
-            title = arr[1].trim();
-            quantity = Integer.parseInt(arr[2].trim());
-            price = Double.parseDouble(arr[3].trim());
-            bookList.addLast(new Book(bcode, title, price, quantity));
+            fr.close();
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        fr.close();
-        br.close();
     }
     
     public static void saveBookFile(String filename) throws IOException {
@@ -134,6 +151,25 @@ public class Manager {
             }
         }
         return false;
+    }
+    
+    static Book inputBook() {
+        Book b = null;
+        System.out.println("Enter bcode: ");
+        String bcode = Validation.checkInputString();
+        if (!checkExistBook(bcode)) {
+            System.out.println("Enter book name: ");
+            String title = Validation.checkInputString();
+            System.out.println("Enter quantity: ");
+            int quantity = Validation.checkInputInt();
+            System.out.println("Enter price: ");
+            double price = Validation.checkInputDouble();
+            b = new Book(bcode, title, price, quantity);
+            System.out.println("Add new book successfully!");
+        } else {
+            System.err.println("Bcode exist!");
+        }
+        return b;
     }
     
     static void inputAddtoEnd() {
@@ -266,4 +302,112 @@ public class Manager {
     public static void deleteProductByIndex(int index) {
         bookList.delIndex(index);
     }
+    
+    static void loadReaderFromFile(String filename) throws Exception {
+        String currentDir = System.getProperty("user.dir");
+        currentDir = currentDir + filename;
+        FileReader fr = new FileReader(currentDir);
+        BufferedReader br = new BufferedReader(fr);
+        String[] arr; 
+        String s, rcode, name;
+        int byear;
+        while (true) {
+            s = br.readLine();
+            if (s == null || s.trim().length() < 3) {
+                break;
+            }
+            arr = s.split("[|]");
+            rcode = arr[0].trim();
+            name = arr[1].trim();
+            byear = Integer.parseInt(arr[2].trim());
+            readerList.addLast(new Reader(rcode, name, byear));
+        }
+        fr.close();
+        br.close();
+    }
+    
+    public static boolean checkExistReader(String bcode) {
+        for (int i = 0; i < readerList.size(); i++) {
+            if (readerList.get(i).getRcode().equals(bcode)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    static void inputAddReadertoEnd() {
+        System.out.println("Enter rcode: ");
+        String rcode = Validation.checkInputString();
+        if (!checkExistReader(rcode)) {
+            System.out.println("Enter reader name: ");
+            String title = Validation.checkInputString();
+            System.out.println("Enter birthyear: ");
+            int price = Validation.checkInputInt();
+            readerList.addLast(new Reader(rcode, title, price));
+            System.out.println("Add new reader successfully!");
+        } else {
+            System.err.println("Reader exist!");
+        }
+    }
+    
+    static void displayReaderData() {
+        MyList<Reader> readerList = Manager.getReaderList();
+        if (bookList.isEmpty()) {
+            System.err.println("List is empty!");
+            return;
+        }
+        System.out.printf("%8s|%15s|%7d\n", "Rcode", "Name", "Birth year");
+        System.out.println("----------------------------------------------");
+        for (int i = 0; i < readerList.size(); i++) {
+            Reader b = readerList.get(i);
+            System.out.printf("%8s|%15s|%7d\n", b.getRcode(), b.getName(), b.getByear());
+        }
+    }
+    
+    public static void saveReaderFile(String filename) throws IOException {
+        String currentDir = System.getProperty("user.dir");
+        currentDir = currentDir + "";
+        FileWriter fw = new FileWriter(currentDir);
+        PrintWriter pw = new PrintWriter(fw);
+        for (int i = 0; i < readerList.size(); i++) {
+            pw.printf("%5s | %10s  | %3d ", readerList.get(i).rcode,
+                    readerList.get(i).name, readerList.get(i).byear);
+        }
+        pw.close();
+        fw.close();
+    }
+    
+     public static int indexByRcode(String rcode) {
+        for (int i = 0; i < readerList.size(); i++) {
+            if (readerList.get(i).getRcode().equals(rcode)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    static void searchByRcode(String rcode) {
+        int position = indexByBcode(rcode);
+        if (position != -1) {
+            System.out.println("Found reader with code " + rcode + " at index " + position);
+        } else {
+            System.out.println("Not found");
+        }
+    }
+    
+    public static void deleteReaderByIndex(int index) {
+        readerList.delIndex(index);
+    }
+    
+    static void deleteByRcode(String rcode) {
+        for (int i = 0; i < readerList.size(); i++) {
+            if (readerList.get(i).getRcode().equals(rcode)) {
+                readerList.delIndex(i);
+                System.out.println("Delete successful");
+                return;
+            }
+        }
+    }
+    
+    
 }   
